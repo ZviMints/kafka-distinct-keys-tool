@@ -1,0 +1,41 @@
+---
+include:
+  - project: doubleverify/devops/ci-cd/gitlab/auto-pipeline
+    file: auto-pipeline/main.yaml
+    ref: $AUTO_PIPELINE_STABLE
+
+variables:
+  STAGING_CANARY_ENABLED: "false"
+  KAFKA_HOST: cs-dv-ny-kafka-general.doubleverify.prod
+
+.env:
+  staging:
+    - CLUSTER: cs-dv-ny-k8s-general
+      NAMESPACE: $CI_PROJECT_NAME
+
+build|jdk11|sbt:
+  variables:
+    ENABLE: "true"
+
+# This pipeline should be triggered with KAFKA_TOPIC injected by Gitlab UI.
+stable|traffic|stg:
+  variables:
+    KAFKA_HOST: cs-dv-ny-kafka-general.doubleverify.prod
+  rules: [ when: manual ]
+
+stable|traffic|stg|validate:
+  image: docker-main.artifact.doubleverify.io/dv-base-images/toolbox:latest
+  stage: stg|post_hook
+  script:
+    - kubectl wait --for=condition=complete --timeout=1h $AWAIT_JOB_TO_COMPLETE job/$CI_PROJECT_NAME-$MY_HELM_SUFFIX || exit 1;
+  environment:
+    name: cs-dv-ny-k8s-general
+    kubernetes:
+      namespace: $CI_PROJECT_NAME
+
+stable|traffic|stg|cleanup:
+  stage: .post
+  extends: .dv.auto-pipeline.common_teardown
+  variables:
+    CLUSTER: cs-dv-ny-k8s-general
+    NAMESPACE: $CI_PROJECT_NAME

@@ -1,0 +1,60 @@
+---
+include:
+  - project: doubleverify/measurement/brand-safety/common/gitlab-cicd
+    file: notify.yml
+  - project: doubleverify/devops/ci-cd/gitlab-ci
+    file: auto-pipeline.yml
+
+.arguments_exists: &arguments_exists
+      $KAFKA_TOPIC && $KAFKA_HOST == "cp-dv-ny-kafka-general.doubleverify.prod"
+stages:
+  - run
+  - validate
+  - cleanup
+
+run prod:
+  stage: run
+  extends: .dv.auto-pipeline.common_deploy
+  variables:
+    CLUSTER: gp-ms-ue1-k8s-brand-safety
+    NAMESPACE: $CI_PROJECT_NAME
+  rules:
+    - if: *arguments_exists
+
+validate prod:
+  stage: validate
+  image: docker-main.artifact.doubleverify.io/dv-base-images/toolbox:latest
+  script:
+    - kubectl wait --for=condition=complete --timeout=1h $AWAIT_JOB_TO_COMPLETE job/$CI_PROJECT_NAME-$MY_HELM_SUFFIX || { echo "Job failed ❌, contact support 🐵🛠️"; exit 1; }
+    - echo "Job completed successfully ✅"
+  environment:
+    name: gp-ms-ue1-k8s-brand-safety
+    kubernetes:
+      namespace: $CI_PROJECT_NAME
+  rules:
+    - if: *arguments_exists
+      when: delayed
+      start_in: 5 hour
+
+cleanup prod:
+  stage: cleanup
+  extends: .dv.auto-pipeline.common_teardown
+  variables:
+    CLUSTER: gp-ms-ue1-k8s-brand-safety
+    NAMESPACE: $CI_PROJECT_NAME
+  rules:
+    - if: *arguments_exists
+      when: delayed
+      start_in: 1 day
+
+notify|pipeline|success|prod:
+  extends: .dv.measurement.brandsafety.notify.prod.on_success
+
+notify|pipeline|failure|prod:
+  extends: .dv.measurement.brandsafety.notify.prod.on_failure
+
+notify|pipeline|success|stg:
+  extends: .dv.measurement.brandsafety.notify.stg.on_success
+
+notify|pipeline|failure|stg:
+  extends: .dv.measurement.brandsafety.notify.stg.on_success

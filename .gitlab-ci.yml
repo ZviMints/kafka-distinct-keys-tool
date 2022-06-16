@@ -1,0 +1,20 @@
+---
+include:
+  - local: gitlab-cicd/development.yaml
+    rules:
+      - if: $CI_PIPELINE_SOURCE == "push" || $CI_PIPELINE_SOURCE == "merge_request_event"
+  - local: gitlab-cicd/run-stg.yaml
+    rules:
+      - if: $CI_PIPELINE_SOURCE == "web" && $KAFKA_HOST == "cs-dv-ny-kafka-general.doubleverify.prod"
+  - local: gitlab-cicd/run-prod.yaml
+    rules:
+      - if: $CI_PIPELINE_SOURCE == "web" && $KAFKA_HOST == "cp-dv-ny-kafka-general.doubleverify.prod"
+
+variables:
+  MY_HELM_SUFFIX: $CI_PIPELINE_IID  # Creates isolation between the jobs
+
+  # Gitlab Pipeline UI
+  KAFKA_HOST:
+    description: ""
+  KAFKA_TOPIC:
+    description: ""

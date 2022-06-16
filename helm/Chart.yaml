@@ -1,0 +1,7 @@
+apiVersion: v2
+name: kafka-distinict-keys-tool
+description: kafka-distinict-keys-tool
+version: 1.0.0
+icon: https://doubleverify.com/wp-content/uploads/2019/10/colour.svg
+maintainers:
+  - name: BrandSafety team

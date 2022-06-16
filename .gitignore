@@ -1,0 +1,13 @@
+*.class
+*.log
+/.bloop/
+/.bsp/
+/.idea/
+project/target
+project/project/target
+target
+logs
+helm/charts
+helm/Chart.lock
+.DS_Store
+*.env
