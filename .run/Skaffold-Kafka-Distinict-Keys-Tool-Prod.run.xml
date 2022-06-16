@@ -1,0 +1,35 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Skaffold-Kafka-Distinict-Keys-Tool-Prod" type="google-container-tools-skaffold-run-config" factoryName="google-container-tools-skaffold-run-config-dev" show_console_on_std_err="false" show_console_on_std_out="false">
+    <option name="allowRunningInParallel" value="false" />
+    <option name="buildEnvironment" value="Local" />
+    <option name="cleanupDeployments" value="true" />
+    <option name="deployToCurrentContext" value="false" />
+    <option name="deployToMinikube" value="false" />
+    <option name="envVariables">
+      <map>
+        <entry key="KAFKA_TOPIC" value="some-topic-name" />
+      </map>
+    </option>
+    <option name="imageRepositoryOverride" value="gcr.io/measurement-prod" />
+    <option name="kubernetesContext" value="gp-ms-ue1-k8s-brand-safety" />
+    <option name="mappings">
+      <list />
+    </option>
+    <option name="moduleDeploymentType" value="DEPLOY_EVERYTHING" />
+    <option name="projectPathOnTarget" />
+    <option name="resourceDeletionTimeoutMins" value="2" />
+    <option name="selectedOptions">
+      <list />
+    </option>
+    <option name="skaffoldConfigurationFilePath" value="$PROJECT_DIR$/skaffold.yaml" />
+    <option name="skaffoldModules">
+      <list />
+    </option>
+    <option name="skaffoldNamespace" />
+    <option name="skaffoldProfile" value="prod" />
+    <option name="skaffoldWatchMode" value="ON_DEMAND" />
+    <option name="statusCheck" value="true" />
+    <option name="verbosity" value="INFO" />
+    <method v="2" />
+  </configuration>
+</component>

@@ -1,0 +1,42 @@
+apiVersion: skaffold/v2beta16
+kind: Config
+metadata:
+  name: kafka-distinct-keys-tool
+build:
+  artifacts:
+    - image: kafka-distinct-keys-tool
+deploy:
+  helm:
+    flags:
+      global:
+        - --debug
+    releases:
+      - name: kafka-distinct-keys-tool
+        chartPath: helm
+        artifactOverrides:
+          image: kafka-distinct-keys-tool
+        namespace: kafka-distinct-keys-tool
+        setValueTemplates:
+          KAFKA_TOPIC: '{{ .KAFKA_TOPIC }}'
+          TRIGGERED_BY: '{{ .USER }}'
+profiles:
+  - name: dev
+    patches:
+      - op: add
+        path: /deploy/helm/releases/0/setValueTemplates/KAFKA_HOST
+        value: cd-dv-ny-kafka-general.doubleverify.prod
+  - name: stg
+    patches:
+      - op: add
+        path: /deploy/helm/releases/0/setValueTemplates/KAFKA_HOST
+        value: cs-dv-ny-kafka-general.doubleverify.prod
+  - name: prod
+    patches:
+      - op: add
+        path: /deploy/helm/releases/0/setValueTemplates/KAFKA_HOST
+        value: cp-dv-ny-kafka-general.doubleverify.prod
+      - op: add
+        path: /deploy/helm/releases/0/setValueTemplates/nodeSelector
+        value:
+          key: app
+          value: default

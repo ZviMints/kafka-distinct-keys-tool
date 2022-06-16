@@ -1,0 +1,22 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ .Release.Name }}-{{ .Values.TRIGGERED_BY }}
+  namespace: {{ .Release.Name }}
+spec:
+  template:
+    spec:
+      containers:
+        - name: {{ .Release.Name }}
+          image: {{ .Values.image }}
+          env:
+            - name: KAFKA_HOST
+              value: {{ .Values.KAFKA_HOST }}
+            - name: KAFKA_TOPIC
+              value: {{ .Values.KAFKA_TOPIC }}
+      restartPolicy: Never
+      {{- if .Values.nodeSelector }}
+      nodeSelector:
+        {{ .Values.nodeSelector.key }}: {{ .Values.nodeSelector.value }}
+  {{- end }}
+  backoffLimit: 0
